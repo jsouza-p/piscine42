@@ -1,0 +1,111 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Rush02                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jsouza-p <jsouza-p@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/07/27 15:38:05 by jsouza-p          #+#    #+#             */
+/*   Updated: 2024/07/27 15:39:38 by jsouza-p         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include <unistd.h>
+#include <stdlib.h>
+
+size_t my_strlen(const char *str) {
+    const char *s = str;
+    while (*s != '\0') {
+        ++s;
+    }
+    return s - str;
+}
+
+void write_str(const char *str) {
+    size_t length = my_strlen(str);
+    write(1, str, length);
+}
+
+const char *units[] = {"zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"};
+const char *teens[] = {"ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"};
+const char *tens[] = {"", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"};
+const char *thousands[] = {"", "thousand", "million", "billion"};
+
+void write_hundred(unsigned int number) {
+    if (number >= 100) {
+        write_str(units[number / 100]);
+        write_str(" hundred");
+        number %= 100;
+        if (number > 0) {
+            write_str(" ");
+        }
+    }
+
+    if (number >= 20) {
+        write_str(tens[number / 10]);
+        number %= 10;
+        if (number > 0) {
+            write_str(" ");
+        }
+    } else if (number >= 10) {
+        write_str(teens[number - 10]);
+        number = 0;
+    }
+
+    if (number > 0) {
+        write_str(units[number]);
+    }
+}
+
+void write_number(unsigned long long number) {
+    if (number >= 1000000000) {
+        write_hundred(number / 1000000000);
+        write_str(" billion");
+        number %= 1000000000;
+        if (number > 0) {
+            write_str(" ");
+        }
+    }
+
+    if (number >= 1000000) {
+        write_hundred(number / 1000000);
+        write_str(" million");
+        number %= 1000000;
+        if (number > 0) {
+            write_str(" ");
+        }
+    }
+
+    if (number >= 1000) {
+        write_hundred(number / 1000);
+        write_str(" thousand");
+        number %= 1000;
+        if (number > 0) {
+            write_str(" ");
+        }
+    }
+
+    if (number > 0) {
+        write_hundred(number);
+    }
+}
+
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        write_str("Usage: <number>\n");
+        return 1;
+    }
+
+    char *endptr;
+    unsigned long long number = strtoull(argv[1], &endptr, 10);
+
+    if (*endptr != '\0' || number > 1000000000) {
+        write_str("Error\n");
+        return 1;
+    }
+
+    write_number(number);
+    write_str("\n");
+
+    return 0;
+}
